@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Weekly Meal Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@300;400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf8f4;
+  --bg2: #f3f0ea;
+  --bg3: #ebe6db;
+  --ink: #1e1c18;
+  --ink2: #5a5650;
+  --ink3: #9a9288;
+  --gold: #b5893a;
+  --gold-lt: #f0e4c8;
+  --gold-dk: #7a5c22;
+  --rose: #a84455;
+  --rose-lt: #f5e0e4;
+  --teal: #2d7a74;
+  --teal-lt: #d8f0ee;
+  --green: #3d7248;
+  --green-lt: #dff0e3;
+  --grape: #5c3d7a;
+  --grape-lt: #ede4f5;
+  --border: rgba(30,28,24,0.1);
+  --border2: rgba(30,28,24,0.06);
+  --font-d: 'Playfair Display', serif;
+  --font-b: 'Lato', sans-serif;
+  --font-m: 'DM Mono', monospace;
+  --r: 14px;
+  --shadow: 0 2px 16px rgba(30,28,24,0.07);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-b);
+  font-weight: 300;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── TOP ── */
+.top-bar {
+  background: var(--ink);
+  padding: 20px 20px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.top-title {
+  font-family: var(--font-d);
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  color: #faf8f4;
+  letter-spacing: 0.01em;
+}
+.top-sub {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: #7a7570;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── DAY TABS ── */
+.day-tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--ink);
+  padding: 0 20px 14px;
+  gap: 8px;
+}
+.day-tabs::-webkit-scrollbar { display: none; }
+.day-tab {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.day-tab.active {
+  background: rgba(181,137,58,0.15);
+  border-color: rgba(181,137,58,0.35);
+}
+.day-tab:hover:not(.active) { background: rgba(255,255,255,0.05); }
+.day-abbr {
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #7a7570;
+  text-transform: uppercase;
+}
+.day-tab.active .day-abbr { color: var(--gold); }
+.day-num {
+  font-family: var(--font-d);
+  font-size: 18px;
+  color: #c8c2b8;
+}
+.day-tab.active .day-num { color: #faf8f4; }
+
+/* ── CONTENT ── */
+.content { padding: 0 0 80px; }
+.day-panel { display: none; }
+.day-panel.active { display: block; }
+
+/* ── DAY HERO ── */
+.day-hero {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 20px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.day-hero-left {}
+.day-name {
+  font-family: var(--font-d);
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.day-theme {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+.day-macros {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.macro-pill {
+  font-family: var(--font-m);
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+.macro-kcal { background: var(--gold-lt); color: var(--gold-dk); }
+.macro-prot { background: var(--teal-lt); color: var(--teal); }
+
+/* ── MEAL SECTION ── */
+.meal-section { border-bottom: 1px solid var(--border2); }
+.meal-section:last-child { border-bottom: none; }
+
+.meal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 0;
+  cursor: pointer;
+}
+.meal-type-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.meal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.meal-type-label {
+  font-family: var(--font-m);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.meal-time {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--ink3);
+}
+.meal-chevron {
+  font-size: 10px;
+  color: var(--ink3);
+  transition: transform 0.2s;
+}
+.meal-section.open .meal-chevron { transform: rotate(180deg); }
+
+.meal-body { padding: 8px 20px 16px; }
+
+.meal-name {
+  font-family: var(--font-d);
+  font-size: 21px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.meal-desc {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+/* ── TAGS ── */
+.tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.tag {
+  font-family: var(--font-m);
+  font-size: 9px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+}
+.t-gold { background: var(--gold-lt); color: var(--gold-dk); }
+.t-teal { background: var(--teal-lt); color: var(--teal); }
+.t-rose { background: var(--rose-lt); color: var(--rose); }
+.t-green { background: var(--green-lt); color: var(--green); }
+.t-grape { background: var(--grape-lt); color: var(--grape); }
+
+/* ── MACROS STRIP ── */
+.macros-strip {
+  display: flex;
+  gap: 0;
+  background: var(--bg2);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.macro-item {
+  flex: 1;
+  padding: 8px 6px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.macro-item:last-child { border-right: none; }
+.macro-val { font-family: var(--font-m); font-size: 14px; color: var(--ink); }
+.macro-lbl { font-size: 10px; color: var(--ink3); margin-top: 1px; }
+
+/* ── WINE CARD ── */
+.wine-card {
+  background: linear-gradient(135deg, #1a0d24 0%, #2d1540 100%);
+  border-radius: var(--r);
+  padding: 13px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.wine-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.wine-info {}
+.wine-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  color: #a080c0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.wine-name {
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f0e8ff;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.wine-note {
+  font-size: 12px;
+  color: #9080a8;
+  line-height: 1.5;
+}
+.wine-price {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: #c8a0e8;
+  margin-top: 5px;
+}
+
+/* ── LIBIDO CARD ── */
+.libido-card {
+  background: var(--rose-lt);
+  border: 1px solid rgba(168,68,85,0.15);
+  border-radius: var(--r);
+  padding: 13px 14px;
+  margin-bottom: 12px;
+}
+.libido-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  color: var(--rose);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.libido-items { display: flex; flex-direction: column; gap: 5px; }
+.libido-item { display: flex; gap: 8px; align-items: flex-start; }
+.libido-food { font-size: 12px; font-weight: 400; color: var(--rose); min-width: 90px; }
+.libido-benefit { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+.libido-for {
+  font-family: var(--font-m);
+  font-size: 9px;
+  color: var(--rose);
+  background: rgba(168,68,85,0.1);
+  padding: 1px 6px;
+  border-radius: 99px;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 1px;
+}
+
+/* ── JESSICA CARD ── */
+.jessica-card {
+  background: var(--green-lt);
+  border: 1px solid rgba(61,114,72,0.15);
+  border-radius: var(--r);
+  padding: 13px 14px;
+}
+.jessica-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.jessica-name {
+  font-family: var(--font-d);
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.jessica-desc { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.jessica-note {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--green);
+  margin-top: 6px;
+}
+
+/* ── COLLAPSED STATE ── */
+.meal-body { display: none; }
+.meal-section.open .meal-body { display: block; }
+
+/* ── GROCERY PANEL ── */
+.grocery-panel {
+  margin: 0 20px 20px;
+}
+.grocery-title {
+  font-family: var(--font-d);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--ink);
+  margin-bottom: 14px;
+  padding-top: 18px;
+}
+.grocery-group { margin-bottom: 16px; }
+.grocery-group-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 5px;
+}
+.grocery-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border2);
+  cursor: pointer;
+}
+.grocery-item:last-child { border-bottom: none; }
+.g-check {
+  width: 18px; height: 18px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: white;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--green);
+  transition: all 0.12s;
+}
+.grocery-item.checked .g-check { background: var(--green-lt); border-color: var(--green); }
+.grocery-item.checked .g-name { text-decoration: line-through; color: var(--ink3); }
+.g-name { font-size: 13px; color: var(--ink); flex: 1; }
+.g-note { font-size: 11px; color: var(--ink3); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(250,248,244,0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 10px 0 18px;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.15s;
+}
+.nav-item.active { opacity: 1; }
+.nav-icon { font-size: 18px; }
+.nav-lbl { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.08em; color: var(--ink2); text-transform: uppercase; }
+.nav-item.active .nav-lbl { color: var(--gold); }
+
+/* ── WEEKLY SUMMARY ── */
+.week-summary {
+  margin: 0 20px 16px;
+  background: var(--ink);
+  border-radius: var(--r);
+  padding: 16px;
+  display: flex;
+  gap: 0;
+}
+.summary-col { flex: 1; text-align: center; border-right: 1px solid rgba(255,255,255,0.08); }
+.summary-col:last-child { border-right: none; }
+.sum-val { font-family: var(--font-d); font-size: 20px; color: #f0e8d8; }
+.sum-lbl { font-family: var(--font-m); font-size: 9px; color: #6a6560; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; }
+
+/* ── ANIM ── */
+@keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+.day-panel.active { animation: fadeIn 0.25s ease both; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-title">Weekly Meal Plan</div>
+  <div class="top-sub">Jon · Wife · Jessica · No pork · Gourmet + libido</div>
+</div>
+
+<div class="day-tabs" id="day-tabs">
+  <div class="day-tab active" onclick="switchDay(0)"><div class="day-abbr">Mon</div><div class="day-num">14</div></div>
+  <div class="day-tab" onclick="switchDay(1)"><div class="day-abbr">Tue</div><div class="day-num">15</div></div>
+  <div class="day-tab" onclick="switchDay(2)"><div class="day-abbr">Wed</div><div class="day-num">16</div></div>
+  <div class="day-tab" onclick="switchDay(3)"><div class="day-abbr">Thu</div><div class="day-num">17</div></div>
+  <div class="day-tab" onclick="switchDay(4)"><div class="day-abbr">Fri</div><div class="day-num">18</div></div>
+  <div class="day-tab" onclick="switchDay(5)"><div class="day-abbr">Sat</div><div class="day-num">19</div></div>
+  <div class="day-tab" onclick="switchDay(6)"><div class="day-abbr">Sun</div><div class="day-num">20</div></div>
+  <div class="day-tab" onclick="switchDay(7)"><div class="day-abbr">List</div><div class="day-num">🛒</div></div>
+</div>
+
+<div class="content" id="content">
+
+<!-- ════════════════ MONDAY ════════════════ -->
+<div class="day-panel active" id="panel-0">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Monday</div>
+      <div class="day-theme">Japanese-inspired · Light start</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,655 kcal</div>
+      <div class="macro-pill macro-prot">124g protein</div>
+    </div>
+  </div>
+
+  <!-- BREAKFAST -->
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge">
+        <div class="meal-dot" style="background:var(--gold)"></div>
+        <div class="meal-type-label" style="color:var(--gold)">Breakfast</div>
+      </div>
+      <div class="meal-time">7:00 am</div>
+      <div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Miso butter eggs on sourdough</div>
+      <div class="meal-desc">Two soft-boiled eggs on toasted sourdough with white miso-butter spread. Green smoothie for all three: spinach, banana, fresh ginger, almond milk. Sliced cucumber on the side.</div>
+      <div class="tag-row">
+        <span class="tag t-gold">Zinc ↑ (eggs)</span>
+        <span class="tag t-teal">Selenium</span>
+        <span class="tag t-green">Jessica ✓</span>
+        <span class="tag t-rose">20 min prep</span>
+      </div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">420</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">28g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">38g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">16g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Same dish, kid-plated</div>
+        <div class="jessica-desc">Plain butter toast instead of miso. Soft-boiled egg sliced into fun wedges. Same green smoothie — she'll love it. Cucumber cut into sticks.</div>
+        <div class="jessica-note">Swimmer fuel: add half a banana on the side for evening practice</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LUNCH -->
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge">
+        <div class="meal-dot" style="background:var(--teal)"></div>
+        <div class="meal-type-label" style="color:var(--teal)">Lunch</div>
+      </div>
+      <div class="meal-time">12:00 pm · 18 min cook</div>
+      <div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Sesame ginger salmon bowl</div>
+      <div class="meal-desc">Pan-seared salmon fillet over brown rice, wilted bok choy, shredded purple cabbage, julienned carrot. Dressing: sesame oil, soy sauce, rice vinegar, fresh ginger, dash of honey. Sprinkle sesame seeds and scallion.</div>
+      <div class="tag-row">
+        <span class="tag t-teal">Omega-3 ↑↑</span>
+        <span class="tag t-gold">Testosterone food</span>
+        <span class="tag t-rose">No pork ✓</span>
+      </div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">490</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">42g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">45g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">14g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition</div>
+        <div class="libido-items">
+          <div class="libido-item">
+            <div class="libido-food">🐟 Salmon</div>
+            <div class="libido-benefit">Omega-3 raises dopamine + testosterone over 4–6 weeks</div>
+            <div class="libido-for">HIM</div>
+          </div>
+          <div class="libido-item">
+            <div class="libido-food">🫛 Bok choy</div>
+            <div class="libido-benefit">Indole-3-carbinol balances estrogen — libido support for her</div>
+            <div class="libido-for">HER</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DINNER -->
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge">
+        <div class="meal-dot" style="background:var(--rose)"></div>
+        <div class="meal-type-label" style="color:var(--rose)">Dinner</div>
+      </div>
+      <div class="meal-time">7:30 pm · 45 min total · 20 min active</div>
+      <div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Miso-glazed black cod with dashi broth & soba</div>
+      <div class="meal-desc">Black cod (or sea bass) marinated in white miso, mirin, sake — broiled 12 min. Served in a light dashi broth with buckwheat soba, wilted spinach, soft-boiled egg, nori strips. Restaurant-quality Monday reset.</div>
+      <div class="tag-row">
+        <span class="tag t-teal">Omega-3 ↑↑↑</span>
+        <span class="tag t-gold">Zinc · iodine</span>
+        <span class="tag t-grape">Japanese technique</span>
+      </div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">550</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">48g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">52g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">12g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🍾</div>
+        <div class="wine-info">
+          <div class="wine-label">Wine pairing</div>
+          <div class="wine-name">Junmai Ginjo sake — or Chablis Premier Cru</div>
+          <div class="wine-note">Crisp, mineral sake echoes the dashi umami. If wine: unoaked Chablis cuts through the miso richness perfectly. Serve cold.</div>
+          <div class="wine-price">Everyday: Hakutsuru Junmai ~$14 · Premium: Drouhin Chablis ~$45</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition · tonight</div>
+        <div class="libido-items">
+          <div class="libido-item">
+            <div class="libido-food">🌿 Spinach</div>
+            <div class="libido-benefit">Magnesium boosts testosterone + improves blood flow to genitals</div>
+            <div class="libido-for">BOTH</div>
+          </div>
+          <div class="libido-item">
+            <div class="libido-food">🥚 Soft egg</div>
+            <div class="libido-benefit">Choline + B5 — adrenal hormone precursors for sustained desire</div>
+            <div class="libido-for">BOTH</div>
+          </div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's adaptation</div>
+        <div class="jessica-name">Mild soba noodle soup</div>
+        <div class="jessica-desc">Plain chicken breast poached in mild broth (not dashi). Same soba noodles, spinach, soft-boiled egg. Skip miso marinade on her fish — just lemon + butter on a small piece of sea bass.</div>
+        <div class="jessica-note">Post-swim recovery: add a small cup of edamame on the side for protein top-up</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ TUESDAY ════════════════ -->
+<div class="day-panel" id="panel-1">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Tuesday</div>
+      <div class="day-theme">French bistro · Garlic-forward</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,680 kcal</div>
+      <div class="macro-pill macro-prot">131g protein</div>
+    </div>
+  </div>
+
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--gold)"></div><div class="meal-type-label" style="color:var(--gold)">Breakfast</div></div>
+      <div class="meal-time">7:00 am</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Greek yogurt parfait with walnuts & berries</div>
+      <div class="meal-desc">Full-fat Greek yogurt layered with mixed berries (blueberries, raspberries), crushed walnuts, a drizzle of raw honey, and hemp seeds. Optional: matcha latte for you and wife.</div>
+      <div class="tag-row"><span class="tag t-rose">Antioxidants ↑</span><span class="tag t-teal">Omega-3 (walnuts)</span><span class="tag t-green">Jessica ✓</span><span class="tag t-gold">5 min prep</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">390</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">24g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">36g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">18g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🫐 Dark berries</div><div class="libido-benefit">Flavonoids improve penile blood flow — significant effect in men 37–45</div><div class="libido-for">HIM</div></div>
+          <div class="libido-item"><div class="libido-food">🌰 Walnuts</div><div class="libido-benefit">Arginine → nitric oxide production → female arousal response</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Yogurt berry bowl</div>
+        <div class="jessica-desc">Same yogurt + berries + honey. Skip walnuts if she's not into nuts. Add granola for crunch. She'll love this one.</div>
+        <div class="jessica-note">Great swimmer breakfast — protein + natural carbs for morning energy</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--teal)"></div><div class="meal-type-label" style="color:var(--teal)">Lunch</div></div>
+      <div class="meal-time">12:00 pm · 15 min cook</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Niçoise salad with seared tuna</div>
+      <div class="meal-desc">Seared ahi tuna (2 min per side), green beans, cherry tomatoes, kalamata olives, hard-boiled egg, fingerling potatoes, red onion. Dijon vinaigrette. Classic French — zero pork, ready in 15 min.</div>
+      <div class="tag-row"><span class="tag t-teal">Omega-3 ↑↑</span><span class="tag t-gold">Iron · Vit D</span><span class="tag t-rose">No pork ✓</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">470</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">44g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">32g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">18g</div><div class="macro-lbl">fat</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--rose)"></div><div class="meal-type-label" style="color:var(--rose)">Dinner</div></div>
+      <div class="meal-time">7:30 pm · 50 min total · 20 min active</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Roast chicken thighs with 40-clove garlic & herbed farro</div>
+      <div class="meal-desc">Bone-in chicken thighs roasted with 40 whole garlic cloves, fresh thyme, rosemary, white wine reduction. Nutty farro with parsley and lemon zest. Crispy garlic broccolini on the side. The garlic becomes sweet and spreadable — showstopper dish for minimal effort.</div>
+      <div class="tag-row"><span class="tag t-rose">Garlic → circulation ↑↑</span><span class="tag t-teal">Allicin</span><span class="tag t-grape">French bistro</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">575</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">52g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">44g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">20g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🍷</div>
+        <div class="wine-info">
+          <div class="wine-label">Wine pairing</div>
+          <div class="wine-name">Burgundy Pinot Noir — Côte de Beaune</div>
+          <div class="wine-note">Red Burgundy's earthy, silky character is the classic match for roast chicken with herbs. The garlic roast calls for gentle tannins — this nails it.</div>
+          <div class="wine-price">Everyday: Louis Jadot Bourgogne ~$22 · Premium: Drouhin Volnay ~$65</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition · tonight</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🧄 40-clove garlic</div><div class="libido-benefit">Allicin significantly increases blood flow — direct arousal benefit for both partners</div><div class="libido-for">BOTH</div></div>
+          <div class="libido-item"><div class="libido-food">🥦 Broccolini</div><div class="libido-benefit">DIM compound helps liver clear excess estrogen — better hormone balance</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's adaptation</div>
+        <div class="jessica-name">Simple roast chicken + broccoli</div>
+        <div class="jessica-desc">Same chicken thigh — remove before adding all the garlic. Season with just salt, olive oil, lemon. Serve with steamed broccoli and plain farro with butter. She gets the same protein, no overwhelming garlic.</div>
+        <div class="jessica-note">Pull her chicken at the 35 min mark before adding the garlic-wine sauce</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ WEDNESDAY ════════════════ -->
+<div class="day-panel" id="panel-2">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Wednesday</div>
+      <div class="day-theme">Coastal Mediterranean · Scallop night</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,640 kcal</div>
+      <div class="macro-pill macro-prot">126g protein</div>
+    </div>
+  </div>
+
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--gold)"></div><div class="meal-type-label" style="color:var(--gold)">Breakfast</div></div>
+      <div class="meal-time">7:00 am</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Avocado toast with smoked salmon & everything seasoning</div>
+      <div class="meal-desc">Sourdough toasted, smashed avocado with lemon and sea salt, thin-sliced smoked salmon, capers, red onion, everything bagel seasoning. Drizzle of olive oil. Coffee or green tea.</div>
+      <div class="tag-row"><span class="tag t-teal">Omega-3 ↑↑</span><span class="tag t-gold">Vit E (avocado)</span><span class="tag t-rose">15 min prep</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">445</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">26g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">34g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">22g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🥑 Avocado</div><div class="libido-benefit">Vitamin E + B6 + healthy fats — supports female hormonal health and libido</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Avocado toast, kid-style</div>
+        <div class="jessica-desc">Plain avocado toast with salt + a sprinkle of everything seasoning. Skip smoked salmon (strong flavor). Add a scrambled egg on the side for protein. She likes avocado — this works.</div>
+        <div class="jessica-note">Add a small glass of OJ for vitamin C to boost iron absorption</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--teal)"></div><div class="meal-type-label" style="color:var(--teal)">Lunch</div></div>
+      <div class="meal-time">12:00 pm · 20 min cook</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Turkish-spiced chicken & bulgur bowl</div>
+      <div class="meal-desc">Ground chicken seasoned with cumin, paprika, coriander, garlic — sautéed crisp. Served over bulgur wheat with roasted red peppers, cucumber, fresh parsley, tahini lemon drizzle, pomegranate seeds.</div>
+      <div class="tag-row"><span class="tag t-gold">Zinc · Iron</span><span class="tag t-teal">Anti-inflammatory</span><span class="tag t-rose">No pork ✓</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">460</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">38g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">48g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">12g</div><div class="macro-lbl">fat</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--rose)"></div><div class="meal-type-label" style="color:var(--rose)">Dinner</div></div>
+      <div class="meal-time">7:30 pm · 30 min total · 15 min active</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Seared scallops on cauliflower purée with crispy capers & herb oil</div>
+      <div class="meal-desc">U-10 scallops — dry-seared in cast iron 90 sec per side until golden crust. Silky cauliflower-butter purée beneath. Crispy pan-fried capers, micro basil, drizzle of chive oil. Restaurant plating technique — takes 15 min of active cooking.</div>
+      <div class="tag-row"><span class="tag t-gold">Zinc ↑↑↑ (scallops)</span><span class="tag t-teal">B12</span><span class="tag t-grape">Fine dining technique</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">480</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">44g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">22g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">24g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🥂</div>
+        <div class="wine-info">
+          <div class="wine-label">Wine pairing</div>
+          <div class="wine-name">White Burgundy — Puligny-Montrachet, or Albariño</div>
+          <div class="wine-note">White Burgundy's butter-hazelnut richness mirrors the cauliflower purée. Albariño brings citrus brightness that cuts through the scallop sweetness. Both are exceptional matches.</div>
+          <div class="wine-price">Everyday: Rias Baixas Albariño ~$18 · Premium: Leflaive Puligny ~$85</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition · tonight</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🐚 Scallops</div><div class="libido-benefit">Very high zinc — one of the top shellfish sources. Raises testosterone measurably</div><div class="libido-for">HIM</div></div>
+          <div class="libido-item"><div class="libido-food">🥦 Cauliflower</div><div class="libido-benefit">Cruciferous DIM compound — liver estrogen clearance supports female desire</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's adaptation</div>
+        <div class="jessica-name">Chicken fingers + cauliflower mash</div>
+        <div class="jessica-desc">Small chicken tenders baked crispy (breadcrumbs, egg, olive oil). Same cauliflower purée — she'll love the creamy texture. Skip capers. Add carrot sticks and ranch dip. Same table, completely different vibe she'll enjoy.</div>
+        <div class="jessica-note">Make extra mash — Jessica and your wife will likely want seconds</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ THURSDAY ════════════════ -->
+<div class="day-panel" id="panel-3">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Thursday</div>
+      <div class="day-theme">Steakhouse at home · Bold red wine night</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,720 kcal</div>
+      <div class="macro-pill macro-prot">138g protein</div>
+    </div>
+  </div>
+
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--gold)"></div><div class="meal-type-label" style="color:var(--gold)">Breakfast</div></div>
+      <div class="meal-time">7:00 am</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Spinach & feta egg white omelette with whole grain toast</div>
+      <div class="meal-desc">3-egg white omelette (1 whole egg) with wilted spinach, crumbled feta, cherry tomato. Whole grain toast with a thin scrape of avocado. Black coffee or matcha. Quick — 12 min total.</div>
+      <div class="tag-row"><span class="tag t-teal">Magnesium ↑ (spinach)</span><span class="tag t-gold">High protein</span><span class="tag t-green">Jessica ✓</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">380</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">32g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">28g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">14g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Cheesy scrambled eggs + toast</div>
+        <div class="jessica-desc">Scrambled whole eggs with cheddar, cherry tomato. Same toast, butter. She loves eggs — this is an easy win on a school morning.</div>
+        <div class="jessica-note">Spinach hidden in the scramble works if she doesn't notice — try it</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--teal)"></div><div class="meal-type-label" style="color:var(--teal)">Lunch</div></div>
+      <div class="meal-time">12:00 pm · 15 min cook</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Korean ground turkey bibimbap</div>
+      <div class="meal-desc">Seasoned ground turkey (gochujang, sesame, soy, garlic) over white rice. Toppings: sautéed spinach, julienned carrot, bean sprouts, fried egg. Sesame oil drizzle. Mix-it-yourself at the table.</div>
+      <div class="tag-row"><span class="tag t-gold">Zinc · Iron</span><span class="tag t-teal">High protein</span><span class="tag t-rose">No pork ✓</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">500</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">44g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">50g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">12g</div><div class="macro-lbl">fat</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--rose)"></div><div class="meal-type-label" style="color:var(--rose)">Dinner</div></div>
+      <div class="meal-time">7:30 pm · 40 min total · 20 min active</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Beef tenderloin with roasted wild mushrooms & truffle jus</div>
+      <div class="meal-desc">4-oz beef tenderloin medallion — seared 3 min per side, finished in oven to medium-rare. Roasted cremini + shiitake mushrooms with thyme. Truffle oil reduction jus. Served with broccolini and smashed fingerling potatoes. Weekend-level dish on a weeknight.</div>
+      <div class="tag-row"><span class="tag t-gold">Zinc ↑↑ (beef)</span><span class="tag t-teal">Vit D (mushrooms)</span><span class="tag t-grape">Steakhouse technique</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">590</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">52g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">32g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">26g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🍷</div>
+        <div class="wine-info">
+          <div class="wine-label">Wine pairing</div>
+          <div class="wine-name">Barolo — or Napa Cabernet Sauvignon</div>
+          <div class="wine-note">Barolo's tar-and-roses structure is the classic beef-and-truffle pairing. If budget: a Napa Cab brings the same tannic grip and dark fruit that stands up to the rich jus. Decant 45 min before serving.</div>
+          <div class="wine-price">Everyday: Jordan Cab Napa ~$35 · Premium: Giacomo Conterno Barolo ~$120</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition · tonight</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🥩 Beef tenderloin</div><div class="libido-benefit">Highest bioavailable zinc + saturated fat needed for testosterone synthesis</div><div class="libido-for">HIM</div></div>
+          <div class="libido-item"><div class="libido-food">🍄 Shiitake</div><div class="libido-benefit">Vitamin D + eritadenine — supports female hormonal balance and energy</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's adaptation</div>
+        <div class="jessica-name">Mini steak + potato + broccoli</div>
+        <div class="jessica-desc">Small 2-oz beef medallion, well-rested and sliced thin. Smashed potatoes with butter. Steamed broccolini with a little parmesan. Skip the truffle jus — simple pan drippings + butter sauce is perfect for her.</div>
+        <div class="jessica-note">Great post-swim protein night — beef is the best recovery meal for young athletes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ FRIDAY ════════════════ -->
+<div class="day-panel" id="panel-4">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Friday</div>
+      <div class="day-theme">Asian fusion · Weekend kickoff</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,650 kcal</div>
+      <div class="macro-pill macro-prot">122g protein</div>
+    </div>
+  </div>
+
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--gold)"></div><div class="meal-type-label" style="color:var(--gold)">Breakfast</div></div>
+      <div class="meal-time">7:00 am</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Overnight oats with chia, flaxseed & mango</div>
+      <div class="meal-desc">Rolled oats soaked overnight in almond milk with chia seeds, ground flaxseed, vanilla. Morning: top with fresh mango, coconut flakes, a spoon of almond butter. Prep the night before — zero morning effort.</div>
+      <div class="tag-row"><span class="tag t-rose">Flaxseed → estrogen balance</span><span class="tag t-teal">Omega-3 (chia)</span><span class="tag t-green">Jessica ✓</span><span class="tag t-gold">0 min morning prep</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">420</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">18g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">58g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">16g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🌾 Ground flaxseed</div><div class="libido-benefit">Lignans balance estrogen — the #1 food recommendation for female libido in clinical studies</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Same overnight oats</div>
+        <div class="jessica-desc">Identical recipe — she'll love the mango + coconut. Great Friday energy for school. Make extra the night before.</div>
+        <div class="jessica-note">Perfect — she can grab it straight from the fridge before school</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--teal)"></div><div class="meal-type-label" style="color:var(--teal)">Lunch</div></div>
+      <div class="meal-time">12:00 pm · 20 min cook</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Shrimp & edamame stir-fry over quinoa</div>
+      <div class="meal-desc">Tiger shrimp stir-fried with edamame, snap peas, red bell pepper, ginger, garlic, oyster sauce + sesame finish. Over fluffy quinoa for complete protein. 18 min start to finish.</div>
+      <div class="tag-row"><span class="tag t-gold">Zinc ↑ (shrimp)</span><span class="tag t-teal">Complete protein</span><span class="tag t-rose">No pork ✓</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">460</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">42g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">44g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">10g</div><div class="macro-lbl">fat</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--rose)"></div><div class="meal-type-label" style="color:var(--rose)">Dinner</div></div>
+      <div class="meal-time">7:30 pm · 35 min total · 20 min active</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Duck breast à l'orange with bok choy & jasmine rice</div>
+      <div class="meal-desc">Duck breast scored, rendered skin-side down, finished in oven to medium. Classic orange-cointreau reduction sauce. Wok-charred bok choy with ginger and oyster sauce. Jasmine rice. French-meets-Cantonese — impressive yet totally doable Friday dish.</div>
+      <div class="tag-row"><span class="tag t-gold">Iron ↑↑ (duck)</span><span class="tag t-teal">Zinc · B12</span><span class="tag t-grape">French-Asian fusion</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">545</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">46g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">42g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">20g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🍷</div>
+        <div class="wine-info">
+          <div class="wine-label">Wine pairing</div>
+          <div class="wine-name">Côtes du Rhône Rouge — or Pinot Noir, Willamette Valley</div>
+          <div class="wine-note">Duck à l'orange needs a wine that bridges richness and citrus. Southern Rhône's Grenache brings red fruit and spice that sings with the orange sauce. Oregon Pinot is a more elegant alternative.</div>
+          <div class="wine-price">Everyday: E. Guigal Côtes du Rhône ~$16 · Premium: Domaine Drouhin Oregon ~$55</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition · tonight</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🦆 Duck breast</div><div class="libido-benefit">Very high iron + zinc — energy and testosterone for the weekend ahead</div><div class="libido-for">HIM</div></div>
+          <div class="libido-item"><div class="libido-food">🫛 Bok choy</div><div class="libido-benefit">Indole-3-carbinol — keeps estrogen balanced for optimal female desire</div><div class="libido-for">HER</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's adaptation</div>
+        <div class="jessica-name">Chicken with orange sauce + rice</div>
+        <div class="jessica-desc">Swap duck for a pan-cooked chicken thigh with a mild orange-butter glaze (skip cointreau). Same jasmine rice and bok choy — she loves greens. Keep the orange sauce sweet and light for her.</div>
+        <div class="jessica-note">Friday night — she deserves something a bit special too</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SATURDAY ════════════════ -->
+<div class="day-panel" id="panel-5">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Saturday</div>
+      <div class="day-theme">Date night level · Oysters + fine dining</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,900 kcal</div>
+      <div class="macro-pill macro-prot">128g protein</div>
+    </div>
+  </div>
+
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--gold)"></div><div class="meal-type-label" style="color:var(--gold)">Brunch</div></div>
+      <div class="meal-time">9:30 am · Relaxed weekend</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Shakshuka with feta & sourdough</div>
+      <div class="meal-desc">Eggs poached in spiced tomato sauce (cumin, paprika, harissa) with crumbled feta, fresh herbs. Crusty sourdough for dipping. One pan, 20 min. Weekend energy — serve family-style.</div>
+      <div class="tag-row"><span class="tag t-rose">Lycopene (tomato)</span><span class="tag t-gold">Choline (eggs)</span><span class="tag t-green">Jessica ✓</span><span class="tag t-teal">20 min</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">480</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">28g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">42g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">20g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Same shakshuka — mild</div>
+        <div class="jessica-desc">Same dish, skip the harissa, reduce paprika. Serve her egg and tomato sauce over plain rice if she's not into sourdough dipping. She'll love the cheesy eggs.</div>
+        <div class="jessica-note">Make it a fun weekend cooking activity — let her crack the eggs in</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--rose)"></div><div class="meal-type-label" style="color:var(--rose)">Date dinner</div></div>
+      <div class="meal-time">7:30 pm · 60 min total · 25 min active</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Oysters on the half shell → Seared duck breast with cherry-port reduction</div>
+      <div class="meal-desc">Act I: 6 fresh oysters on ice with mignonette and champagne. Act II: duck breast seared golden, finished in oven, served with wild cherry port reduction, roasted fingerling potatoes, haricots verts with almond slivers. This is the week's centerpiece dinner — the highest libido-nutrition density meal of the week.</div>
+      <div class="tag-row"><span class="tag t-gold">Zinc ↑↑↑↑ (oysters)</span><span class="tag t-rose">Dopamine foods</span><span class="tag t-grape">Date night ritual</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">720</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">58g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">48g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">30g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🥂</div>
+        <div class="wine-info">
+          <div class="wine-label">Two-act wine pairing</div>
+          <div class="wine-name">Act I: Champagne Blanc de Blancs — Act II: Gevrey-Chambertin</div>
+          <div class="wine-note">Champagne's acidity is the only correct match for raw oysters — cuts brine perfectly. For duck with cherry-port, Gevrey-Chambertin's earthy Pinot brings the whole meal together. Two bottles, two acts, one extraordinary evening.</div>
+          <div class="wine-price">Act I: Lanson Blanc de Blancs ~$45 · Act II: Rossignol Gevrey ~$75</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Peak vitality nutrition · Saturday ritual</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🦪 Oysters (6)</div><div class="libido-benefit">16mg zinc per serving — single highest zinc food. Raises testosterone within hours. Also highest dopamine precursor tyrosine.</div><div class="libido-for">HIM</div></div>
+          <div class="libido-item"><div class="libido-food">🍒 Cherry sauce</div><div class="libido-benefit">Melatonin + anthocyanins in tart cherries support hormone cycles and female desire</div><div class="libido-for">HER</div></div>
+          <div class="libido-item"><div class="libido-food">🥂 Champagne</div><div class="libido-benefit">The ritual itself — anticipation, fine glassware, shared experience — is clinically shown to enhance libido beyond food alone</div><div class="libido-for">BOTH</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's dinner</div>
+        <div class="jessica-name">Pasta with butter & parmesan + green beans</div>
+        <div class="jessica-desc">Saturday is date night — give Jessica an easy, comforting dinner she loves while you cook the main event. Pasta + parmesan + haricots verts with butter. She eats early, you plate the duck for two after she's settled.</div>
+        <div class="jessica-note">Let her taste a tiny piece of duck if curious — kids often surprise you</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SUNDAY ════════════════ -->
+<div class="day-panel" id="panel-6">
+  <div class="day-hero">
+    <div class="day-hero-left">
+      <div class="day-name">Sunday</div>
+      <div class="day-theme">Italian family · Clam linguine night</div>
+    </div>
+    <div class="day-macros">
+      <div class="macro-pill macro-kcal">~1,680 kcal</div>
+      <div class="macro-pill macro-prot">118g protein</div>
+    </div>
+  </div>
+
+  <div class="meal-section open">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--gold)"></div><div class="meal-type-label" style="color:var(--gold)">Brunch</div></div>
+      <div class="meal-time">10:00 am · Sunday slow</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">French toast with fresh berries & mascarpone</div>
+      <div class="meal-desc">Thick brioche French toast — egg, milk, vanilla, cinnamon batter. Pan-cooked in butter until golden. Dollop of lightly sweetened mascarpone, fresh strawberries and blueberries, maple syrup drizzle. Sunday indulgence — higher calorie intentionally.</div>
+      <div class="tag-row"><span class="tag t-gold">Choline (eggs)</span><span class="tag t-rose">Antioxidants</span><span class="tag t-green">Jessica ✓✓✓</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">580</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">22g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">68g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">24g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's plate</div>
+        <div class="jessica-name">Identical — she will love this</div>
+        <div class="jessica-desc">Same French toast, same berries. Skip mascarpone if she's not into it — whipped cream or extra maple syrup instead. This is her favorite Sunday morning meal category. Guaranteed success.</div>
+        <div class="jessica-note">Sunday is about family joy — no adaptations needed here</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-section">
+    <div class="meal-header" onclick="toggleMeal(this)">
+      <div class="meal-type-badge"><div class="meal-dot" style="background:var(--rose)"></div><div class="meal-type-label" style="color:var(--rose)">Dinner</div></div>
+      <div class="meal-time">6:00 pm · 30 min · Sunday family dinner</div><div class="meal-chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-name">Linguine alle vongole with crusty bread & arugula salad</div>
+      <div class="meal-desc">Fresh clams steamed open in white wine, garlic, parsley — tossed with al-dente linguine and a drizzle of high-quality olive oil. Arugula salad with shaved parmesan and lemon vinaigrette. Crusty bread for the broth. Classic Italian Sunday — elegant, effortless, the whole house smells incredible.</div>
+      <div class="tag-row"><span class="tag t-gold">B12 ↑↑ (clams)</span><span class="tag t-teal">Iron · Zinc</span><span class="tag t-grape">Italian Sunday ritual</span></div>
+      <div class="macros-strip">
+        <div class="macro-item"><div class="macro-val">620</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-item"><div class="macro-val">48g</div><div class="macro-lbl">protein</div></div>
+        <div class="macro-item"><div class="macro-val">72g</div><div class="macro-lbl">carbs</div></div>
+        <div class="macro-item"><div class="macro-val">14g</div><div class="macro-lbl">fat</div></div>
+      </div>
+      <div class="wine-card">
+        <div class="wine-icon">🥂</div>
+        <div class="wine-info">
+          <div class="wine-label">Wine pairing</div>
+          <div class="wine-name">Vermentino di Sardegna — or Greco di Tufo</div>
+          <div class="wine-note">Vermentino's herbal, saline character with a bitter almond finish is the Italian coastal classic for clams. Greco di Tufo is richer with peach notes — both are perfect. Serve well chilled.</div>
+          <div class="wine-price">Everyday: Argiolas Costamolino Vermentino ~$18 · Premium: Greco di Tufo Feudi ~$28</div>
+        </div>
+      </div>
+      <div class="libido-card">
+        <div class="libido-label">Vitality nutrition · Sunday close</div>
+        <div class="libido-items">
+          <div class="libido-item"><div class="libido-food">🐚 Clams</div><div class="libido-benefit">Highest B12 food on earth — essential for energy, nerve function, and testosterone maintenance</div><div class="libido-for">HIM</div></div>
+          <div class="libido-item"><div class="libido-food">🧄 Garlic (vongole)</div><div class="libido-benefit">Allicin circulation boost — sets up the week ahead hormonally for both partners</div><div class="libido-for">BOTH</div></div>
+        </div>
+      </div>
+      <div class="jessica-card">
+        <div class="jessica-label">🌿 Jessica's adaptation</div>
+        <div class="jessica-name">Buttered pasta + parmesan + shrimp</div>
+        <div class="jessica-desc">Same linguine, butter + parmesan sauce instead of clam broth. Add 4–5 pan-sautéed shrimp if she's open to it (many kids like shrimp). Arugula salad with parmesan on the side — she likes greens, this works perfectly.</div>
+        <div class="jessica-note">Pasta Sunday is universally beloved by 8-year-olds — zero resistance guaranteed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ GROCERY LIST ════════════════ -->
+<div class="day-panel" id="panel-7">
+  <div class="grocery-panel">
+    <div class="grocery-title">Weekly grocery list</div>
+
+    <div class="week-summary">
+      <div class="summary-col"><div class="sum-val">7</div><div class="sum-lbl">Dinners</div></div>
+      <div class="summary-col"><div class="sum-val">0</div><div class="sum-lbl">Pork items</div></div>
+      <div class="summary-col"><div class="sum-val">6</div><div class="sum-lbl">Wine bottles</div></div>
+      <div class="summary-col"><div class="sum-val">21</div><div class="sum-lbl">Libido foods</div></div>
+    </div>
+
+    <div class="grocery-group">
+      <div class="grocery-group-label">Protein & seafood</div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Black cod or sea bass fillets</div><div class="g-note">Mon dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Salmon fillets (2 large)</div><div class="g-note">Mon lunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Ahi tuna steaks</div><div class="g-note">Tue lunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Bone-in chicken thighs (6–8)</div><div class="g-note">Tue dinner + Jessica</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Smoked salmon (4 oz)</div><div class="g-note">Wed breakfast</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">U-10 scallops (8 large)</div><div class="g-note">Wed dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Ground turkey (1 lb)</div><div class="g-note">Thu lunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Beef tenderloin (2 medallions)</div><div class="g-note">Thu dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Tiger shrimp (1 lb)</div><div class="g-note">Fri lunch + Jessica Sun</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Duck breast (3 — Fri, Sat, Jessica Fri)</div><div class="g-note">Fri & Sat dinners</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Fresh oysters (6–12, Saturday)</div><div class="g-note">Sat date night</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Fresh clams (2 lbs)</div><div class="g-note">Sun dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Eggs (18-pack)</div><div class="g-note">All week</div></div>
+    </div>
+
+    <div class="grocery-group">
+      <div class="grocery-group-label">Produce & greens</div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Baby spinach (large bag)</div><div class="g-note">Mon, Thu, all week</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Bok choy (4 heads)</div><div class="g-note">Mon, Fri, lunches</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Broccolini (2 bunches)</div><div class="g-note">Tue, Thu dinners</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Cauliflower (1 large head)</div><div class="g-note">Wed dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Avocados (3)</div><div class="g-note">Wed breakfast, snacks</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Mixed berries (blueberry, raspberry, strawberry)</div><div class="g-note">Tue, Sun brunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Fresh ginger (large knob)</div><div class="g-note">All week</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Garlic (3 heads — yes, 3)</div><div class="g-note">Tue 40-clove + all week</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Edamame (frozen, 2 bags)</div><div class="g-note">Fri lunch, snacks</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Fingerling potatoes (1 lb)</div><div class="g-note">Thu dinner, Sat dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Arugula (1 bag)</div><div class="g-note">Sun dinner salad</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Cherry tomatoes (1 pint)</div><div class="g-note">Tue, Thu breakfasts</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Fresh mango</div><div class="g-note">Fri overnight oats</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Snap peas + red bell pepper</div><div class="g-note">Fri lunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Haricots verts (green beans, 1 lb)</div><div class="g-note">Tue Niçoise, Sat dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Cremini + shiitake mushrooms</div><div class="g-note">Thu dinner</div></div>
+    </div>
+
+    <div class="grocery-group">
+      <div class="grocery-group-label">Pantry & grains</div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Buckwheat soba noodles</div><div class="g-note">Mon dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Farro (1 bag)</div><div class="g-note">Tue dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Bulgur wheat</div><div class="g-note">Wed lunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Quinoa</div><div class="g-note">Fri lunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Linguine (1 lb)</div><div class="g-note">Sun dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Brown rice + jasmine rice</div><div class="g-note">Mon lunch, Fri dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">White miso paste</div><div class="g-note">Mon breakfast & dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Dashi stock (or kombu + bonito)</div><div class="g-note">Mon dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Rolled oats + chia seeds + ground flaxseed</div><div class="g-note">Fri overnight oats</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Pumpkin seeds (raw)</div><div class="g-note">Daily snack — zinc</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">85% dark chocolate (2 bars)</div><div class="g-note">Daily snack — libido</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Truffle oil (small bottle)</div><div class="g-note">Thu dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Port wine (for sauce)</div><div class="g-note">Sat dinner sauce</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Good olive oil (extra virgin)</div><div class="g-note">All week</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Sourdough + brioche bread</div><div class="g-note">Mon, Wed, Sun</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Full-fat Greek yogurt (large)</div><div class="g-note">Tue breakfast</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Walnuts + almond butter</div><div class="g-note">Tue, Fri</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Mascarpone cheese</div><div class="g-note">Sun brunch</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Capers (jar)</div><div class="g-note">Wed breakfast + dinner</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Harissa paste</div><div class="g-note">Sat shakshuka</div></div>
+    </div>
+
+    <div class="grocery-group">
+      <div class="grocery-group-label">Wine — the week's list</div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Sake (Junmai Ginjo) or Chablis</div><div class="g-note">Monday — miso cod</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Burgundy Pinot Noir</div><div class="g-note">Tuesday — roast chicken</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">White Burgundy or Albariño</div><div class="g-note">Wednesday — scallops</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Barolo or Napa Cabernet</div><div class="g-note">Thursday — beef tenderloin</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Côtes du Rhône or Oregon Pinot Noir</div><div class="g-note">Friday — duck à l'orange</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Champagne Blanc de Blancs</div><div class="g-note">Saturday Act I — oysters</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Gevrey-Chambertin Pinot Noir</div><div class="g-note">Saturday Act II — duck</div></div>
+      <div class="grocery-item" onclick="toggleGrocery(this)"><div class="g-check"></div><div class="g-name">Vermentino di Sardegna</div><div class="g-note">Sunday — clam linguine</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="switchNav(this, 'meals')">
+    <div class="nav-icon">◈</div>
+    <div class="nav-lbl">Meals</div>
+  </div>
+  <div class="nav-item" onclick="switchNav(this, 'wine')">
+    <div class="nav-icon">◎</div>
+    <div class="nav-lbl">Wine</div>
+  </div>
+  <div class="nav-item" onclick="switchNav(this, 'libido')">
+    <div class="nav-icon">◇</div>
+    <div class="nav-lbl">Vitality</div>
+  </div>
+  <div class="nav-item" onclick="switchNav(this, 'grocery')">
+    <div class="nav-icon">▦</div>
+    <div class="nav-lbl">Grocery</div>
+  </div>
+</div>
+
+<script>
+let activeDay = 0;
+
+function switchDay(idx) {
+  document.querySelectorAll('.day-tab').forEach((t,i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+  activeDay = idx;
+  // auto-open first meal when switching days
+  if (idx < 7) {
+    const panel = document.getElementById('panel-' + idx);
+    const firstSection = panel.querySelector('.meal-section');
+    if (firstSection && !firstSection.classList.contains('open')) {
+      firstSection.classList.add('open');
+    }
+  }
+  window.scrollTo(0, 0);
+}
+
+function toggleMeal(header) {
+  const section = header.closest('.meal-section');
+  section.classList.toggle('open');
+}
+
+function toggleGrocery(item) {
+  item.classList.toggle('checked');
+  if (item.classList.contains('checked')) {
+    item.querySelector('.g-check').textContent = '✓';
+  } else {
+    item.querySelector('.g-check').textContent = '';
+  }
+}
+
+function switchNav(el, type) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  if (type === 'grocery') {
+    switchDay(7);
+  }
+}
+
+// Set today's tab based on actual day of week
+const todayMap = { 1:0, 2:1, 3:2, 4:3, 5:4, 6:5, 0:6 };
+const todayIdx = todayMap[new Date().getDay()];
+if (todayIdx !== undefined) switchDay(todayIdx);
+</script>
+
+</body>
+</html>
