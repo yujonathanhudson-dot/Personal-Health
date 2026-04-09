@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Jon's Workout Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0b;
+  --bg2: #111114;
+  --bg3: #18181c;
+  --bg4: #1e1e23;
+  --line: rgba(255,255,255,0.06);
+  --line2: rgba(255,255,255,0.1);
+  --text: #e8e6e0;
+  --text2: #8a8880;
+  --text3: #4a4846;
+  --lime: #c8f53a;
+  --lime-dim: #6a8010;
+  --lime-dk: #2a3808;
+  --orange: #f07030;
+  --orange-dim: #7a3010;
+  --blue: #38a8f0;
+  --blue-dim: #183858;
+  --red: #e83850;
+  --red-dim: #681828;
+  --font-d: 'Bebas Neue', sans-serif;
+  --font-b: 'Barlow', sans-serif;
+  --font-m: 'DM Mono', monospace;
+  --r: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+  font-weight: 300;
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+/* ── BG TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 40px,
+    rgba(255,255,255,0.012) 40px,
+    rgba(255,255,255,0.012) 41px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position: relative; z-index: 1; padding-bottom: 90px; }
+
+/* ── HEADER ── */
+.header {
+  padding: 24px 20px 0;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.brand {
+  font-family: var(--font-d);
+  font-size: 36px;
+  letter-spacing: 0.04em;
+  color: var(--lime);
+  line-height: 1;
+}
+.brand-sub {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.week-badge {
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: right;
+}
+.week-num { font-family: var(--font-d); font-size: 24px; color: var(--text); letter-spacing: 0.04em; }
+.week-lbl { font-family: var(--font-m); font-size: 9px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── PHASE STRIP ── */
+.phase-strip {
+  display: flex;
+  gap: 6px;
+  padding: 14px 20px 0;
+}
+.phase-btn {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.phase-btn.active {
+  background: var(--lime-dk);
+  border-color: var(--lime-dim);
+}
+.phase-btn:hover:not(.active) { background: var(--bg4); }
+.phase-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  display: block;
+  margin-bottom: 3px;
+}
+.phase-btn.active .phase-label { color: var(--lime-dim); }
+.phase-name {
+  font-family: var(--font-d);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--text2);
+}
+.phase-btn.active .phase-name { color: var(--lime); }
+
+/* ── WEEK OVERVIEW ── */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  padding: 14px 20px 0;
+}
+.day-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.day-pill-abbr {
+  font-family: var(--font-m);
+  font-size: 8px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.day-pill-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-m);
+  font-size: 9px;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.day-pill.active .day-pill-circle {
+  border-color: var(--lime);
+  background: var(--lime-dk);
+}
+.day-pill.rest .day-pill-circle { border-color: var(--line); }
+.day-pill-type {
+  font-family: var(--font-m);
+  font-size: 7px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.day-pill.active .day-pill-type { color: var(--lime-dim); }
+.type-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 20px 20px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ── TODAY CARD ── */
+.today-card {
+  margin: 0 20px;
+  background: var(--bg2);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.today-header {
+  background: var(--lime-dk);
+  border-bottom: 1px solid var(--lime-dim);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.today-day { font-family: var(--font-d); font-size: 28px; letter-spacing: 0.06em; color: var(--lime); }
+.today-type {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--lime-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.today-meta { text-align: right; }
+.today-duration { font-family: var(--font-d); font-size: 22px; color: var(--text2); letter-spacing: 0.04em; }
+.today-intensity {
+  font-family: var(--font-m);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── TIMER ── */
+.timer-section {
+  padding: 16px 16px 0;
+}
+.timer-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.timer-num {
+  font-family: var(--font-d);
+  font-size: 52px;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  line-height: 1;
+  min-width: 80px;
+  text-align: center;
+}
+.timer-colon {
+  font-family: var(--font-d);
+  font-size: 44px;
+  color: var(--text3);
+  animation: blink 1s step-end infinite;
+  line-height: 1;
+  margin-top: -4px;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.timer-controls { display: flex; gap: 8px; margin-bottom: 16px; }
+.timer-btn {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px;
+  font-family: var(--font-m);
+  font-size: 11px;
+  color: var(--text2);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.12s;
+  text-align: center;
+}
+.timer-btn:hover { background: var(--bg4); }
+.timer-btn.primary {
+  background: var(--lime);
+  color: #0a0a0b;
+  border-color: var(--lime);
+  font-weight: 500;
+}
+.timer-btn.primary:hover { opacity: 0.88; }
+.timer-btn.active-rest {
+  background: var(--orange-dim);
+  color: var(--orange);
+  border-color: var(--orange-dim);
+}
+
+/* ── EXERCISE LIST ── */
+.exercise-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.exercise-item {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.exercise-item.done {
+  border-color: var(--lime-dim);
+  background: var(--lime-dk);
+}
+.exercise-item.current {
+  border-color: var(--lime);
+}
+.ex-num {
+  font-family: var(--font-d);
+  font-size: 20px;
+  color: var(--text3);
+  min-width: 24px;
+  letter-spacing: 0.04em;
+}
+.exercise-item.done .ex-num { color: var(--lime); }
+.exercise-item.current .ex-num { color: var(--lime); }
+.ex-info { flex: 1; }
+.ex-name { font-size: 14px; font-weight: 400; color: var(--text); }
+.ex-detail { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+.exercise-item.done .ex-name { color: var(--lime); text-decoration: line-through; opacity: 0.7; }
+.ex-sets {
+  font-family: var(--font-m);
+  font-size: 11px;
+  color: var(--text3);
+  text-align: right;
+  flex-shrink: 0;
+}
+.ex-check {
+  width: 24px; height: 24px;
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: var(--lime);
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+.exercise-item.done .ex-check { background: var(--lime-dk); border-color: var(--lime-dim); }
+
+/* ── EQUIPMENT TAGS ── */
+.eq-tag {
+  font-family: var(--font-m);
+  font-size: 8px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.eq-peloton { background: rgba(56,168,240,0.12); color: var(--blue); }
+.eq-bungee { background: rgba(240,112,48,0.12); color: var(--orange); }
+.eq-ab { background: rgba(232,56,80,0.12); color: var(--red); }
+.eq-dumbbell { background: rgba(200,245,58,0.1); color: var(--lime-dim); }
+.eq-body { background: rgba(255,255,255,0.06); color: var(--text2); }
+
+/* ── WEEKLY PLAN PANELS ── */
+.week-panel { display: none; }
+.week-panel.active { display: block; }
+
+/* ── DAY CARD (week view) ── */
+.day-card {
+  margin: 0 20px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.day-card-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+}
+.day-card-header.rest-header { opacity: 0.5; }
+.day-card-left { display: flex; align-items: center; gap: 12px; }
+.day-card-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.day-card-name { font-family: var(--font-d); font-size: 20px; letter-spacing: 0.06em; }
+.day-card-type { font-family: var(--font-m); font-size: 9px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; }
+.day-card-right { text-align: right; }
+.day-card-duration { font-family: var(--font-m); font-size: 11px; color: var(--text2); }
+.day-card-chevron { font-size: 10px; color: var(--text3); margin-left: 8px; transition: transform 0.2s; }
+.day-card.open .day-card-chevron { transform: rotate(180deg); }
+.day-card-body { display: none; padding: 12px 16px; }
+.day-card.open .day-card-body { display: block; }
+.day-exercise-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.day-exercise-row:last-child { border-bottom: none; }
+.de-bullet {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.de-name { font-size: 13px; color: var(--text); font-weight: 400; flex: 1; }
+.de-detail { font-size: 11px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+.de-sets { font-family: var(--font-m); font-size: 10px; color: var(--text3); flex-shrink: 0; padding-top: 2px; }
+
+/* ── PROGRESS SECTION ── */
+.progress-card {
+  margin: 0 20px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+}
+.prog-title { font-family: var(--font-d); font-size: 22px; letter-spacing: 0.04em; color: var(--text); margin-bottom: 14px; }
+.prog-row { margin-bottom: 14px; }
+.prog-label-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.prog-lbl { font-size: 12px; color: var(--text2); }
+.prog-val { font-family: var(--font-m); font-size: 11px; color: var(--lime); }
+.prog-bar-bg { height: 4px; background: var(--bg4); border-radius: 4px; overflow: hidden; }
+.prog-bar-fill { height: 100%; border-radius: 4px; background: var(--lime); transition: width 0.8s ease; }
+.streak-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 16px; }
+.streak-stat { background: var(--bg3); border-radius: 8px; padding: 10px 8px; text-align: center; }
+.streak-val { font-family: var(--font-d); font-size: 22px; letter-spacing: 0.04em; color: var(--lime); }
+.streak-lbl { font-family: var(--font-m); font-size: 8px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px; }
+
+/* ── WEIGHT LOSS SCIENCE CARD ── */
+.science-card {
+  margin: 0 20px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+}
+.sci-title { font-family: var(--font-d); font-size: 20px; letter-spacing: 0.04em; color: var(--text); margin-bottom: 12px; }
+.sci-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.sci-item:last-child { border-bottom: none; }
+.sci-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; margin-top: 1px; }
+.sci-content { flex: 1; }
+.sci-heading { font-size: 13px; font-weight: 400; color: var(--text); margin-bottom: 3px; }
+.sci-detail { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.sci-highlight { color: var(--lime); font-weight: 400; }
+
+/* ── PHASE INFO CARD ── */
+.phase-info {
+  margin: 0 20px;
+  border-radius: var(--r);
+  padding: 14px 16px;
+  border: 1px solid;
+}
+.phase-info.p1 { background: rgba(200,245,58,0.04); border-color: rgba(200,245,58,0.15); }
+.phase-info.p2 { background: rgba(240,112,48,0.04); border-color: rgba(240,112,48,0.15); }
+.phase-info.p3 { background: rgba(56,168,240,0.04); border-color: rgba(56,168,240,0.15); }
+.pi-label { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+.p1 .pi-label { color: var(--lime-dim); }
+.p2 .pi-label { color: var(--orange); }
+.p3 .pi-label { color: var(--blue); }
+.pi-title { font-family: var(--font-d); font-size: 18px; letter-spacing: 0.04em; color: var(--text); margin-bottom: 5px; }
+.pi-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* ── DESK BREAKS CARD ── */
+.desk-card {
+  margin: 0 20px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.desk-header {
+  background: rgba(56,168,240,0.08);
+  border-bottom: 1px solid rgba(56,168,240,0.15);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.desk-header-title { font-family: var(--font-d); font-size: 18px; letter-spacing: 0.04em; color: var(--blue); }
+.desk-header-sub { font-family: var(--font-m); font-size: 9px; color: var(--blue-dim); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+.desk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.desk-item:last-child { border-bottom: none; }
+.desk-time { font-family: var(--font-m); font-size: 11px; color: var(--text3); min-width: 46px; padding-top: 2px; flex-shrink: 0; }
+.desk-move { flex: 1; }
+.desk-move-name { font-size: 13px; color: var(--text); font-weight: 400; }
+.desk-move-detail { font-size: 11px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+.desk-duration { font-family: var(--font-m); font-size: 10px; color: var(--blue); flex-shrink: 0; padding-top: 2px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: rgba(10,10,11,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line2);
+  display: flex;
+  padding: 10px 0 20px;
+  z-index: 100;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+.nav-item.active { opacity: 1; }
+.nav-icon { font-size: 16px; color: var(--text2); }
+.nav-lbl { font-family: var(--font-m); font-size: 8px; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
+.nav-item.active .nav-lbl { color: var(--lime); }
+
+/* ── ANIMS ── */
+@keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.today-card { animation: slideUp 0.3s ease both; }
+.phase-strip { animation: slideUp 0.3s 0.06s ease both; }
+
+/* ── REST DAY ── */
+.rest-card {
+  margin: 0 20px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 28px 20px;
+  text-align: center;
+}
+.rest-icon { font-size: 36px; margin-bottom: 12px; }
+.rest-title { font-family: var(--font-d); font-size: 28px; letter-spacing: 0.06em; color: var(--text2); margin-bottom: 8px; }
+.rest-desc { font-size: 13px; color: var(--text3); line-height: 1.7; }
+.rest-desc span { color: var(--lime); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="brand">FORGE</div>
+        <div class="brand-sub">Jon's training system · Week 1</div>
+      </div>
+      <div class="week-badge">
+        <div class="week-num" id="streak-display">0</div>
+        <div class="week-lbl">day streak</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE SELECTOR -->
+  <div class="phase-strip">
+    <div class="phase-btn active" onclick="setPhase(0,this)">
+      <span class="phase-label">Phase 1</span>
+      <span class="phase-name">FOUNDATION</span>
+    </div>
+    <div class="phase-btn" onclick="setPhase(1,this)">
+      <span class="phase-label">Phase 2</span>
+      <span class="phase-name">BUILD</span>
+    </div>
+    <div class="phase-btn" onclick="setPhase(2,this)">
+      <span class="phase-label">Phase 3</span>
+      <span class="phase-name">SHRED</span>
+    </div>
+  </div>
+
+  <!-- WEEK DOT GRID -->
+  <div class="week-grid" id="week-grid">
+    <div class="day-pill active" onclick="selectDay(0,this)">
+      <div class="day-pill-abbr">Mon</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--blue)"></div></div>
+      <div class="day-pill-type">Cardio</div>
+    </div>
+    <div class="day-pill" onclick="selectDay(1,this)">
+      <div class="day-pill-abbr">Tue</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--orange)"></div></div>
+      <div class="day-pill-type">Resist</div>
+    </div>
+    <div class="day-pill rest" onclick="selectDay(2,this)">
+      <div class="day-pill-abbr">Wed</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--text3)"></div></div>
+      <div class="day-pill-type">Rest</div>
+    </div>
+    <div class="day-pill" onclick="selectDay(3,this)">
+      <div class="day-pill-abbr">Thu</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--blue)"></div></div>
+      <div class="day-pill-type">Cardio</div>
+    </div>
+    <div class="day-pill" onclick="selectDay(4,this)">
+      <div class="day-pill-abbr">Fri</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--orange)"></div></div>
+      <div class="day-pill-type">Resist</div>
+    </div>
+    <div class="day-pill" onclick="selectDay(5,this)">
+      <div class="day-pill-abbr">Sat</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--red)"></div></div>
+      <div class="day-pill-type">Full</div>
+    </div>
+    <div class="day-pill rest" onclick="selectDay(6,this)">
+      <div class="day-pill-abbr">Sun</div>
+      <div class="day-pill-circle"><div class="type-dot" style="background:var(--text3)"></div></div>
+      <div class="day-pill-type">Rest</div>
+    </div>
+  </div>
+
+  <!-- DAY PANELS -->
+  <div id="day-panels">
+
+    <!-- MONDAY — CARDIO + CORE -->
+    <div class="week-panel active" id="panel-0">
+      <div class="sec-label">Monday · Cardio + Core</div>
+      <div class="today-card">
+        <div class="today-header">
+          <div>
+            <div class="today-day">MONDAY</div>
+            <div class="today-type">Peloton Power Zone + Ab Circuit</div>
+          </div>
+          <div class="today-meta">
+            <div class="today-duration">25 MIN</div>
+            <div class="today-intensity">Moderate</div>
+          </div>
+        </div>
+        <div class="timer-section">
+          <div class="timer-display">
+            <div class="timer-num" id="timer-min">25</div>
+            <div class="timer-colon">:</div>
+            <div class="timer-num" id="timer-sec">00</div>
+          </div>
+          <div class="timer-controls">
+            <div class="timer-btn" onclick="resetTimer()">Reset</div>
+            <div class="timer-btn primary" id="timer-start-btn" onclick="toggleTimer()">Start</div>
+            <div class="timer-btn" id="rest-btn" onclick="startRest()">Rest 60s</div>
+          </div>
+        </div>
+        <div class="exercise-list" id="monday-list">
+          <div class="exercise-item current" onclick="toggleExercise(this)">
+            <div class="ex-num">01</div>
+            <div class="ex-info">
+              <div class="ex-name">Peloton Power Zone Endurance</div>
+              <div class="ex-detail">Zones 2–3, conversational pace. Build aerobic base without burning out. <span class="eq-tag eq-peloton">Peloton</span></div>
+            </div>
+            <div class="ex-sets">15 min</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">02</div>
+            <div class="ex-info">
+              <div class="ex-name">Ab roller — slow negatives</div>
+              <div class="ex-detail">From knees. Roll out 3 sec, hold 1 sec, pull in 3 sec. Core only — no momentum. <span class="eq-tag eq-ab">Ab Roller</span></div>
+            </div>
+            <div class="ex-sets">3 × 8</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">03</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee standing rows</div>
+              <div class="ex-detail">Anchor at door handle height. Elbows drive back, squeeze shoulder blades at finish. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 15</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">04</div>
+            <div class="ex-info">
+              <div class="ex-name">3 lb lateral raise — slow burn</div>
+              <div class="ex-detail">Arms out to shoulder height, 3 sec up / 3 sec down. High reps build shoulder width. <span class="eq-tag eq-dumbbell">3 lb DB</span></div>
+            </div>
+            <div class="ex-sets">3 × 20</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">05</div>
+            <div class="ex-info">
+              <div class="ex-name">Dead bug hold</div>
+              <div class="ex-detail">Lower back pressed to floor, opposite arm/leg extended, 5 sec hold each side. Anti-rotation core. <span class="eq-tag eq-body">Bodyweight</span></div>
+            </div>
+            <div class="ex-sets">3 × 10</div>
+            <div class="ex-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TUESDAY — RESISTANCE -->
+    <div class="week-panel" id="panel-1">
+      <div class="sec-label">Tuesday · Full Body Resistance</div>
+      <div class="today-card">
+        <div class="today-header">
+          <div>
+            <div class="today-day">TUESDAY</div>
+            <div class="today-type">Bungee + Bodyweight Circuit</div>
+          </div>
+          <div class="today-meta">
+            <div class="today-duration">28 MIN</div>
+            <div class="today-intensity">Moderate-High</div>
+          </div>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">01</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee chest press</div>
+              <div class="ex-detail">Anchor behind you at chest height. Press forward — full extension, controlled return. Chest + triceps. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 15</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">02</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee bicep curls</div>
+              <div class="ex-detail">Stand on middle of bungee, curl both handles. Squeeze at top, 2 sec lower. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 15</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">03</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee squat to row</div>
+              <div class="ex-detail">Squat down, stand and row simultaneously. Full body compound — burns maximum calories. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 12</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">04</div>
+            <div class="ex-info">
+              <div class="ex-name">Push-up — hand-release</div>
+              <div class="ex-detail">Lower all the way, lift hands off floor 1 sec, push back up. Forces full range. <span class="eq-tag eq-body">Bodyweight</span></div>
+            </div>
+            <div class="ex-sets">3 × 8–12</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">05</div>
+            <div class="ex-info">
+              <div class="ex-name">3 lb front raise + overhead press</div>
+              <div class="ex-detail">Raise forward to shoulder height, then press overhead. Combine into one fluid motion. <span class="eq-tag eq-dumbbell">3 lb DB</span></div>
+            </div>
+            <div class="ex-sets">3 × 15</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">06</div>
+            <div class="ex-info">
+              <div class="ex-name">Ab roller — plank rollout</div>
+              <div class="ex-detail">Same movement but hold a plank at full extension for 3 sec before returning. Advanced Tuesday version. <span class="eq-tag eq-ab">Ab Roller</span></div>
+            </div>
+            <div class="ex-sets">3 × 6</div>
+            <div class="ex-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEDNESDAY — REST -->
+    <div class="week-panel" id="panel-2">
+      <div class="sec-label">Wednesday · Active Recovery</div>
+      <div class="rest-card">
+        <div class="rest-icon">🌿</div>
+        <div class="rest-title">REST & REBUILD</div>
+        <div class="rest-desc">
+          Muscle grows during rest, not during the workout.<br><br>
+          Today: <span>10 min walk</span> after lunch (when you drive home), stretch your hip flexors (desk damage), and eat your <span>150g protein target</span>.<br><br>
+          Your Peloton recovery ride option: 10 min low-resistance spin, Zone 1 only, no sweat required.
+        </div>
+      </div>
+      <div class="sec-label" style="margin-top:16px">Desk damage repair</div>
+      <div class="desk-card">
+        <div class="desk-header">
+          <div>
+            <div class="desk-header-title">Hip Flexor Protocol</div>
+            <div class="desk-header-sub">Fix desk-chair damage · 8 min total</div>
+          </div>
+        </div>
+        <div class="desk-item">
+          <div class="desk-time">2 min</div>
+          <div class="desk-move">
+            <div class="desk-move-name">Kneeling hip flexor stretch</div>
+            <div class="desk-move-detail">Right knee down, left foot forward. Shift weight forward, feel the front of right hip open. Switch sides after 60 sec.</div>
+          </div>
+        </div>
+        <div class="desk-item">
+          <div class="desk-time">2 min</div>
+          <div class="desk-move">
+            <div class="desk-move-name">Cat-cow spinal wave</div>
+            <div class="desk-move-detail">On all fours. Inhale — drop belly, lift chest. Exhale — round spine to ceiling. Slow and controlled.</div>
+          </div>
+        </div>
+        <div class="desk-item">
+          <div class="desk-time">2 min</div>
+          <div class="desk-move">
+            <div class="desk-move-name">Thoracic rotation</div>
+            <div class="desk-move-detail">Seated on floor, hand behind head, rotate elbow to sky. Reverses hours of hunching over desk.</div>
+          </div>
+        </div>
+        <div class="desk-item">
+          <div class="desk-time">2 min</div>
+          <div class="desk-move">
+            <div class="desk-move-name">Standing wall chest opener</div>
+            <div class="desk-move-detail">One arm on wall at shoulder height, rotate body away. Counteracts keyboard posture.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THURSDAY — CARDIO + CORE -->
+    <div class="week-panel" id="panel-3">
+      <div class="sec-label">Thursday · Cardio Intervals + Core</div>
+      <div class="today-card">
+        <div class="today-header">
+          <div>
+            <div class="today-day">THURSDAY</div>
+            <div class="today-type">Peloton HIIT + Bungee Finisher</div>
+          </div>
+          <div class="today-meta">
+            <div class="today-duration">25 MIN</div>
+            <div class="today-intensity">High</div>
+          </div>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">01</div>
+            <div class="ex-info">
+              <div class="ex-name">Peloton HIIT intervals</div>
+              <div class="ex-detail">20 sec all-out (Zone 5), 40 sec easy (Zone 1). Repeat 10 rounds = 10 min. Maximum fat burn in minimum time. <span class="eq-tag eq-peloton">Peloton</span></div>
+            </div>
+            <div class="ex-sets">10 × 20s</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">02</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee pull-apart</div>
+              <div class="ex-detail">Hold bungee at chest width, pull apart until fully extended across chest. Rear delts + posture fix for desk workers. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 20</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">03</div>
+            <div class="ex-info">
+              <div class="ex-name">Ab roller — standing attempt</div>
+              <div class="ex-detail">Progress check: try from standing. Go only as far as you can control. Return is the hard part — don't collapse. <span class="eq-tag eq-ab">Ab Roller</span></div>
+            </div>
+            <div class="ex-sets">2 × 5</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">04</div>
+            <div class="ex-info">
+              <div class="ex-name">Hollow body hold</div>
+              <div class="ex-detail">On back, lower back pressed flat, arms overhead, legs at 45°. Hold still — do not rock. The hardest ab exercise you'll do. <span class="eq-tag eq-body">Bodyweight</span></div>
+            </div>
+            <div class="ex-sets">3 × 20s</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">05</div>
+            <div class="ex-info">
+              <div class="ex-name">3 lb dumbbell — 21s curls</div>
+              <div class="ex-detail">7 reps bottom-half, 7 reps top-half, 7 full range. 21 total per set. Bicep pump with minimal weight. <span class="eq-tag eq-dumbbell">3 lb DB</span></div>
+            </div>
+            <div class="ex-sets">3 × 21</div>
+            <div class="ex-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRIDAY — RESISTANCE -->
+    <div class="week-panel" id="panel-4">
+      <div class="sec-label">Friday · Resistance + Shoulder Focus</div>
+      <div class="today-card">
+        <div class="today-header">
+          <div>
+            <div class="today-day">FRIDAY</div>
+            <div class="today-type">Bungee Pull + Dumbbell Burnout</div>
+          </div>
+          <div class="today-meta">
+            <div class="today-duration">28 MIN</div>
+            <div class="today-intensity">Moderate-High</div>
+          </div>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">01</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee lat pulldown</div>
+              <div class="ex-detail">Anchor high on door frame. Pull handles down to chest, elbows drive to sides. V-taper builder. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 15</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">02</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee tricep pushdown</div>
+              <div class="ex-detail">Anchor high. Elbows pinned to sides, extend hands down to full lockout. Triceps = 2/3 of arm size. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 20</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">03</div>
+            <div class="ex-info">
+              <div class="ex-name">3 lb bent-over rear delt fly</div>
+              <div class="ex-detail">Hinge at hips 45°, arms hang down, raise to T-position. Fixes the rounded shoulders from desk work. <span class="eq-tag eq-dumbbell">3 lb DB</span></div>
+            </div>
+            <div class="ex-sets">4 × 20</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">04</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee face pull</div>
+              <div class="ex-detail">Anchor at face height. Pull to ears, elbows flare high. The single best exercise for posture and shoulder health. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 20</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">05</div>
+            <div class="ex-info">
+              <div class="ex-name">Ab roller superset + plank</div>
+              <div class="ex-detail">8 rollouts immediately into 30 sec plank, no rest between. Finisher. <span class="eq-tag eq-ab">Ab Roller</span> <span class="eq-tag eq-body">Bodyweight</span></div>
+            </div>
+            <div class="ex-sets">3 rounds</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">06</div>
+            <div class="ex-info">
+              <div class="ex-name">3 lb Arnold press</div>
+              <div class="ex-detail">Start palms facing you, press and rotate so palms face forward at top. Hits all 3 shoulder heads. <span class="eq-tag eq-dumbbell">3 lb DB</span></div>
+            </div>
+            <div class="ex-sets">3 × 15</div>
+            <div class="ex-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SATURDAY — FULL BODY -->
+    <div class="week-panel" id="panel-5">
+      <div class="sec-label">Saturday · Full Body Blitz</div>
+      <div class="today-card">
+        <div class="today-header">
+          <div>
+            <div class="today-day">SATURDAY</div>
+            <div class="today-type">Peloton + Full Circuit · Peak Week Day</div>
+          </div>
+          <div class="today-meta">
+            <div class="today-duration">40 MIN</div>
+            <div class="today-intensity">High</div>
+          </div>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">01</div>
+            <div class="ex-info">
+              <div class="ex-name">Peloton — 20 min Power Zone ride</div>
+              <div class="ex-detail">Zones 3–4, with 3× 30-sec Zone 5 efforts. Burn 250–350 kcal. This is your big weekly calorie event. <span class="eq-tag eq-peloton">Peloton</span></div>
+            </div>
+            <div class="ex-sets">20 min</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">02</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee squat to overhead press</div>
+              <div class="ex-detail">Stand on bungee, squat down, explode up and press handles overhead. Full body power. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 12</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">03</div>
+            <div class="ex-info">
+              <div class="ex-name">Ab roller — max reps</div>
+              <div class="ex-detail">Today go to failure on each set. Record your max. This is your weekly PR attempt. <span class="eq-tag eq-ab">Ab Roller</span></div>
+            </div>
+            <div class="ex-sets">3 × max</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">04</div>
+            <div class="ex-info">
+              <div class="ex-name">Bungee woodchop — rotational</div>
+              <div class="ex-detail">Anchor high. Pull handle diagonally across body from high to low. Rotational power = oblique strength. <span class="eq-tag eq-bungee">Bungee</span></div>
+            </div>
+            <div class="ex-sets">3 × 12 each</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">05</div>
+            <div class="ex-info">
+              <div class="ex-name">3 lb dumbbell circuit — no rest</div>
+              <div class="ex-detail">Lateral raise × 15 → front raise × 15 → overhead press × 15 → curl × 15. All one set, no breaks. <span class="eq-tag eq-dumbbell">3 lb DB</span></div>
+            </div>
+            <div class="ex-sets">3 rounds</div>
+            <div class="ex-check"></div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-num">06</div>
+            <div class="ex-info">
+              <div class="ex-name">Burpee finisher</div>
+              <div class="ex-detail">10 burpees — rest 30 sec — 8 burpees — rest 20 sec — 6 burpees. Done. <span class="eq-tag eq-body">Bodyweight</span></div>
+            </div>
+            <div class="ex-sets">10-8-6</div>
+            <div class="ex-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUNDAY — REST -->
+    <div class="week-panel" id="panel-6">
+      <div class="sec-label">Sunday · Full Rest</div>
+      <div class="rest-card">
+        <div class="rest-icon">☀️</div>
+        <div class="rest-title">FULL REST DAY</div>
+        <div class="rest-desc">
+          You trained 5 days this week. Sunday is non-negotiable rest.<br><br>
+          <span>Walk after dinner with your family</span> — that's it. No Peloton, no bungee.<br><br>
+          Prep your overnight oats for Monday morning and review next week's meal plan. That's a productive Sunday.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /day panels -->
+
+  <!-- DESK BREAKS -->
+  <div class="sec-label">Office micro-movements · every day</div>
+  <div class="desk-card">
+    <div class="desk-header">
+      <div>
+        <div class="desk-header-title">Sedentary Offset Protocol</div>
+        <div class="desk-header-sub">Counteracts 8 hrs at desk · 2 min each</div>
+      </div>
+    </div>
+    <div class="desk-item">
+      <div class="desk-time">10:00 am</div>
+      <div class="desk-move">
+        <div class="desk-move-name">Standing calf raises + shoulder rolls</div>
+        <div class="desk-move-detail">20 calf raises at your desk + 10 backward shoulder rolls. Activates lower body circulation.</div>
+      </div>
+      <div class="desk-duration">2 min</div>
+    </div>
+    <div class="desk-item">
+      <div class="desk-time">12:00 pm</div>
+      <div class="desk-move">
+        <div class="desk-move-name">Walk during commute home</div>
+        <div class="desk-move-detail">Park 5 min further away or take stairs. Non-exercise activity thermogenesis — burns 150–200 kcal/day cumulatively.</div>
+      </div>
+      <div class="desk-duration">5 min</div>
+    </div>
+    <div class="desk-item">
+      <div class="desk-time">2:30 pm</div>
+      <div class="desk-move">
+        <div class="desk-move-name">Wall sit + neck stretch</div>
+        <div class="desk-move-detail">30 sec wall sit against nearest wall. Then tilt head to each side for neck tension from screens.</div>
+      </div>
+      <div class="desk-duration">2 min</div>
+    </div>
+    <div class="desk-item">
+      <div class="desk-time">4:00 pm</div>
+      <div class="desk-move">
+        <div class="desk-move-name">10 deep squats + hip circles</div>
+        <div class="desk-move-detail">Full depth bodyweight squat, pause at bottom. Then 5 hip circles each direction standing. Undoes chair damage.</div>
+      </div>
+      <div class="desk-duration">2 min</div>
+    </div>
+  </div>
+
+  <!-- PROGRESSION PHASES -->
+  <div class="sec-label">12-week progression</div>
+
+  <div class="phase-info p1" id="phase-card-0">
+    <div class="pi-label">Phase 1 · Weeks 1–4 · Currently here</div>
+    <div class="pi-title">FOUNDATION — Build the habit</div>
+    <div class="pi-desc">4 workout days/week. Peloton Zone 2–3 endurance. Ab roller from knees only. All bungee movements slow and controlled. Goal: your body adapting to regular training. Expected weight loss: 1–2 kg. Expected energy gain: significant by week 3.</div>
+  </div>
+
+  <div class="phase-info p2" id="phase-card-1" style="margin-top:8px;display:none;">
+    <div class="pi-label">Phase 2 · Weeks 5–8</div>
+    <div class="pi-title">BUILD — Increase intensity</div>
+    <div class="pi-desc">5 workout days/week. Add HIIT intervals on Peloton. Ab roller from standing attempts begin. Bungee volume increases — add 1 extra set per exercise. Goal: visible muscle definition starting. Expected weight loss: 2–3 more kg. Saturday workout extends to 45 min.</div>
+  </div>
+
+  <div class="phase-info p3" id="phase-card-2" style="margin-top:8px;display:none;">
+    <div class="pi-label">Phase 3 · Weeks 9–12</div>
+    <div class="pi-title">SHRED — Hollywood finish</div>
+    <div class="pi-desc">Peloton HIIT 3×/week. Bungee supersets (two exercises back-to-back, no rest). Ab roller from standing, full extension. Add 5 min morning walk before workout. Calorie deficit tightens to 600 kcal/day. Final 4 weeks push toward 78 kg target. Diet + training synchronized for peak physique.</div>
+  </div>
+
+  <!-- PROGRESS LOG -->
+  <div class="sec-label">Progress tracker</div>
+  <div class="progress-card">
+    <div class="prog-title">WEEKLY LOG</div>
+    <div class="prog-row">
+      <div class="prog-label-row">
+        <div class="prog-lbl">Workouts completed this week</div>
+        <div class="prog-val" id="workouts-done-label">0 / 5</div>
+      </div>
+      <div class="prog-bar-bg"><div class="prog-bar-fill" id="workouts-bar" style="width:0%"></div></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label-row">
+        <div class="prog-lbl">Ab roller max reps (personal best)</div>
+        <div class="prog-val" id="ab-pr-label">0 reps</div>
+      </div>
+      <div class="prog-bar-bg"><div class="prog-bar-fill" id="ab-bar" style="width:0%; background:var(--red)"></div></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label-row">
+        <div class="prog-lbl">Weight loss journey (90.65 → 78 kg)</div>
+        <div class="prog-val" id="weight-loss-label">0%</div>
+      </div>
+      <div class="prog-bar-bg"><div class="prog-bar-fill" id="weight-bar" style="width:0%; background:var(--blue)"></div></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <div style="flex:1;">
+        <div style="font-family:var(--font-m);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Ab roller PR</div>
+        <input type="number" placeholder="0 reps" id="ab-input" style="background:var(--bg3);border:1px solid var(--line2);border-radius:8px;padding:9px 12px;font-family:var(--font-m);font-size:13px;color:var(--text);width:100%;outline:none;" oninput="updateAbPR(this.value)">
+      </div>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-m);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Current weight (kg)</div>
+        <input type="number" step="0.1" placeholder="90.7" id="weight-input" style="background:var(--bg3);border:1px solid var(--line2);border-radius:8px;padding:9px 12px;font-family:var(--font-m);font-size:13px;color:var(--text);width:100%;outline:none;" oninput="updateWeight(this.value)">
+      </div>
+    </div>
+
+    <div class="streak-grid" style="margin-top:12px;">
+      <div class="streak-stat">
+        <div class="streak-val" id="s-workouts">0</div>
+        <div class="streak-lbl">Workouts</div>
+      </div>
+      <div class="streak-stat">
+        <div class="streak-val" id="s-peloton">0</div>
+        <div class="streak-lbl">Peloton</div>
+      </div>
+      <div class="streak-stat">
+        <div class="streak-val" id="s-streak">0</div>
+        <div class="streak-lbl">Day streak</div>
+      </div>
+      <div class="streak-stat">
+        <div class="streak-val" id="s-kg">0</div>
+        <div class="streak-lbl">kg lost</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCIENCE CARD -->
+  <div class="sec-label">Why this works</div>
+  <div class="science-card">
+    <div class="sci-title">THE SCIENCE FOR A DESK WORKER</div>
+    <div class="sci-item">
+      <div class="sci-icon">🚴</div>
+      <div class="sci-content">
+        <div class="sci-heading">Peloton Zone 2 — the fat-burning engine</div>
+        <div class="sci-detail">Zone 2 cardio (conversational pace) trains mitochondria to burn fat as fuel. <span class="sci-highlight">15 min/day, 3×/week</span> produces measurable metabolic improvement within 4 weeks for sedentary individuals. More effective for fat loss than the same time in Zone 4–5.</div>
+      </div>
+    </div>
+    <div class="sci-item">
+      <div class="sci-icon">⚡</div>
+      <div class="sci-content">
+        <div class="sci-heading">Bungee resistance — the muscle builder</div>
+        <div class="sci-detail">Resistance bands (bungee included) produce <span class="sci-highlight">equivalent hypertrophy to free weights</span> for untrained individuals — proven by 2019 meta-analysis. The variable resistance curve actually makes bungee superior for shoulder exercises. Perfect for your equipment situation.</div>
+      </div>
+    </div>
+    <div class="sci-item">
+      <div class="sci-icon">🔁</div>
+      <div class="sci-content">
+        <div class="sci-heading">Ab roller — the core compressor</div>
+        <div class="sci-detail">EMG studies show ab roller produces <span class="sci-highlight">highest rectus abdominis activation</span> of any core exercise — higher than crunches, planks, or leg raises. 8 weeks of rollouts produces visible abdominal definition even without weight loss.</div>
+      </div>
+    </div>
+    <div class="sci-item">
+      <div class="sci-icon">💪</div>
+      <div class="sci-content">
+        <div class="sci-heading">3 lb dumbbells — the Hollywood trick</div>
+        <div class="sci-detail">Celebrities use light weights at high reps (20–30) for shoulder and arm definition because it builds <span class="sci-highlight">muscle density without bulk</span>. At your current fitness level, 3 lbs at 20 reps creates genuine hypertrophy stimulus. This is a feature, not a limitation.</div>
+      </div>
+    </div>
+    <div class="sci-item">
+      <div class="sci-icon">🪑</div>
+      <div class="sci-content">
+        <div class="sci-heading">NEAT — the hidden calorie burner</div>
+        <div class="sci-detail">Non-Exercise Activity Thermogenesis (fidgeting, desk breaks, walking) accounts for <span class="sci-highlight">200–400 kcal/day</span> in active people versus sedentary. Your 4 desk breaks + lunch walk adds this without any dedicated workout time. Over 12 weeks: ~15,000 kcal extra burned.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="navSwitch(this,'today')">
+    <div class="nav-icon">⬡</div>
+    <div class="nav-lbl">Today</div>
+  </div>
+  <div class="nav-item" onclick="navSwitch(this,'week')">
+    <div class="nav-icon">◫</div>
+    <div class="nav-lbl">Week</div>
+  </div>
+  <div class="nav-item" onclick="navSwitch(this,'progress')">
+    <div class="nav-icon">△</div>
+    <div class="nav-lbl">Progress</div>
+  </div>
+  <div class="nav-item" onclick="navSwitch(this,'science')">
+    <div class="nav-icon">◎</div>
+    <div class="nav-lbl">Science</div>
+  </div>
+</div>
+
+<script>
+// ── TIMER ──
+let timerInterval = null;
+let totalSecs = 25 * 60;
+let running = false;
+let restSecs = 0;
+let restInterval = null;
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function updateTimerDisplay(secs) {
+  document.getElementById('timer-min').textContent = pad(Math.floor(secs/60));
+  document.getElementById('timer-sec').textContent = pad(secs%60);
+}
+
+function toggleTimer() {
+  if (!running) {
+    running = true;
+    document.getElementById('timer-start-btn').textContent = 'Pause';
+    timerInterval = setInterval(() => {
+      if (totalSecs > 0) { totalSecs--; updateTimerDisplay(totalSecs); }
+      else { clearInterval(timerInterval); running = false; document.getElementById('timer-start-btn').textContent = 'Done!'; }
+    }, 1000);
+  } else {
+    running = false;
+    clearInterval(timerInterval);
+    document.getElementById('timer-start-btn').textContent = 'Resume';
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  running = false;
+  totalSecs = 25 * 60;
+  updateTimerDisplay(totalSecs);
+  document.getElementById('timer-start-btn').textContent = 'Start';
+  document.getElementById('rest-btn').textContent = 'Rest 60s';
+  document.getElementById('rest-btn').classList.remove('active-rest');
+}
+
+function startRest() {
+  clearInterval(restInterval);
+  restSecs = 60;
+  const btn = document.getElementById('rest-btn');
+  btn.classList.add('active-rest');
+  restInterval = setInterval(() => {
+    restSecs--;
+    btn.textContent = 'Rest ' + restSecs + 's';
+    if (restSecs <= 0) {
+      clearInterval(restInterval);
+      btn.textContent = 'Rest 60s';
+      btn.classList.remove('active-rest');
+    }
+  }, 1000);
+}
+
+// ── EXERCISE TOGGLE ──
+let workoutsDone = 0;
+
+function toggleExercise(el) {
+  const wasDone = el.classList.contains('done');
+  el.classList.toggle('done');
+  el.classList.remove('current');
+  const check = el.querySelector('.ex-check');
+  if (!wasDone) {
+    check.textContent = '✓';
+    workoutsDone = Math.min(workoutsDone + 1, 99);
+    // highlight next
+    const next = el.nextElementSibling;
+    if (next && next.classList.contains('exercise-item') && !next.classList.contains('done')) {
+      next.classList.add('current');
+    }
+  } else {
+    check.textContent = '';
+  }
+  updateStreakDisplay();
+}
+
+function updateStreakDisplay() {
+  document.getElementById('streak-display').textContent = workoutsDone;
+}
+
+// ── DAY SELECT ──
+let activeDay = 0;
+
+function selectDay(idx, el) {
+  document.querySelectorAll('.day-pill').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.week-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+  activeDay = idx;
+  window.scrollTo(0, 0);
+}
+
+// ── PHASE SELECT ──
+let activePhase = 0;
+
+function setPhase(idx, el) {
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  activePhase = idx;
+  document.getElementById('phase-card-0').style.display = idx === 0 ? 'block' : 'none';
+  document.getElementById('phase-card-1').style.display = idx === 1 ? 'block' : 'none';
+  document.getElementById('phase-card-2').style.display = idx === 2 ? 'block' : 'none';
+}
+
+// ── PROGRESS ──
+function updateAbPR(val) {
+  const v = parseInt(val) || 0;
+  const pct = Math.min(100, (v / 20) * 100);
+  document.getElementById('ab-bar').style.width = pct + '%';
+  document.getElementById('ab-pr-label').textContent = v + ' reps';
+  document.getElementById('s-peloton').textContent = v;
+}
+
+function updateWeight(val) {
+  const w = parseFloat(val) || 90.65;
+  const lost = Math.max(0, 90.65 - w);
+  const pct = Math.min(100, (lost / 12.65) * 100);
+  document.getElementById('weight-bar').style.width = pct.toFixed(1) + '%';
+  document.getElementById('weight-loss-label').textContent = pct.toFixed(1) + '%';
+  document.getElementById('s-kg').textContent = lost.toFixed(1);
+}
+
+// ── NAV ──
+function navSwitch(el, section) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  if (section === 'progress') {
+    document.querySelector('.progress-card').scrollIntoView({ behavior: 'smooth' });
+  } else if (section === 'science') {
+    document.querySelector('.science-card').scrollIntoView({ behavior: 'smooth' });
+  } else if (section === 'week') {
+    document.querySelector('.week-grid').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ── WORKOUTS DONE COUNT ──
+function recountWorkouts() {
+  const done = document.querySelectorAll('.exercise-item.done').length;
+  const total = document.querySelectorAll('.exercise-item').length;
+  const pct = total > 0 ? (done / total) * 100 : 0;
+  document.getElementById('workouts-bar').style.width = pct + '%';
+  document.getElementById('workouts-done-label').textContent = done + ' / ' + total;
+  document.getElementById('s-workouts').textContent = done;
+}
+
+// auto-select today's day
+const dayMap = { 1:0, 2:1, 3:2, 4:3, 5:4, 6:5, 0:6 };
+const todayIdx = dayMap[new Date().getDay()];
+if (todayIdx !== undefined) {
+  document.querySelectorAll('.day-pill')[todayIdx]?.classList.add('active');
+  document.querySelectorAll('.day-pill').forEach(d => d.classList.remove('active'));
+  const todayPill = document.querySelectorAll('.day-pill')[todayIdx];
+  if (todayPill) todayPill.classList.add('active');
+  document.querySelectorAll('.week-panel').forEach((p,i) => p.classList.toggle('active', i === todayIdx));
+}
+
+// rewire toggle to also recount
+document.querySelectorAll('.exercise-item').forEach(item => {
+  item.addEventListener('click', () => setTimeout(recountWorkouts, 50));
+});
+</script>
+</body>
+</html>
